@@ -1,12 +1,6 @@
 # 카카오 로그인 + Supabase 연결 가이드 (시민권력 OS)
 
-> 현재 상태(2026.10.12): 코드와 DB 스키마는 준비됐지만 **Supabase 새 프로젝트를 아직 만들지 못했어요.** 무료 플랜은 활성 프로젝트가 계정당 2개까지인데, 이미 다른 프로젝트 두 개가 활성 상태예요. 아래 0단계부터 진행해 주세요.
-> 아래 `<REF>`는 0단계에서 만든 프로젝트의 Reference ID(20자 영문)로 바꿔 읽으세요.
-
-## 0. Supabase 프로젝트 자리 만들기 (택1)
-- A) 쓰지 않는 프로젝트 일시정지: Supabase 대시보드에서 쓰지 않는 기존 프로젝트의 Settings > General → **Pause project**
-- B) 조직을 유료(Pro) 플랜으로 변경 → 비용이 발생하므로 직접 판단
-- 자리가 생기면 봇에게 “Supabase 자리 비웠어”라고 알려주면 `simin-gwonryeok`(서울 ap-northeast-2) 프로젝트 생성 → 마이그레이션(`supabase/migrations/20261012000000_init.sql`) 적용 → 보안 점검 → Netlify 환경변수 설정 → 재배포까지 진행해요.
+> 현재 상태(2026.10.14): 백엔드는 기존 Supabase 프로젝트 **dialog-platform**(`bskczruswajwmmubsenf`) 안의 별도 스키마 `civic`에 연결돼 있어요(기존 dialog 데이터는 건드리지 않음). 사이트는 이미 이 프로젝트로 배포됐고, **카카오 제공자만 켜면** 실제 로그인이 됩니다. 지금은 카카오가 꺼져 있어 로그인 버튼을 누르면 "준비 중" 안내가 뜨고, 기록은 브라우저에만 저장돼요.
 
 ## 1. 카카오 개발자 앱 만들기
 1. https://developers.kakao.com 로그인 → 상단 **내 애플리케이션** → **애플리케이션 추가하기**
@@ -17,7 +11,7 @@
 1. **제품 설정 > 카카오 로그인** → 활성화 설정 **ON**
 2. **Redirect URI 등록**:
    ```
-   https://<REF>.supabase.co/auth/v1/callback
+   https://bskczruswajwmmubsenf.supabase.co/auth/v1/callback
    ```
    (카카오가 돌려보내는 곳은 우리 사이트가 아니라 Supabase예요. 정확히 위 주소 한 줄만)
 3. **제품 설정 > 카카오 로그인 > 동의항목**
@@ -29,15 +23,16 @@
 2. **제품 설정 > 카카오 로그인 > 보안** → **Client Secret 코드 생성** → 활성화 상태 **사용함** → 코드 복사 (= Client Secret)
 
 ## 4. Supabase에 카카오 키 넣기
-1. https://supabase.com/dashboard/project/<REF>/auth/providers → **Kakao** 펼치기 → **Enable** ON
+1. https://supabase.com/dashboard/project/bskczruswajwmmubsenf/auth/providers → **Kakao** 펼치기 → **Enable** ON
 2. **REST API Key(Client ID)**: 3-1의 REST API 키 / **Client Secret Code**: 3-2의 코드
 3. 화면의 **Callback URL**이 2-2에 등록한 주소와 정확히 같은지 확인 → **Save**
 4. (선택) “Allow users without an email”이 있으면 **ON** — 이메일 동의를 받지 않기 때문이에요
 
-## 5. Supabase 주소 설정 (봇이 커넥터로 못 하면 직접)
-https://supabase.com/dashboard/project/<REF>/auth/url-configuration
-- **Site URL**: `https://simin-gwonryeok.netlify.app`
-- **Redirect URLs**(추가): `https://simin-gwonryeok.netlify.app/**`  (로컬 테스트용: `http://localhost:3000/**`)
+## 5. Supabase 주소 설정 (직접 — 커넥터로는 변경 불가)
+https://supabase.com/dashboard/project/bskczruswajwmmubsenf/auth/url-configuration
+- **Site URL**: ⚠️ **바꾸지 마세요.** dialog-platform이 쓰는 기존 값을 그대로 둡니다(바꾸면 dialog 로그인/메일 링크가 깨짐).
+- **Redirect URLs**(추가): `https://simin-gwonryeok.netlify.app/**`  ← 기존 항목은 지우지 말고 **추가만** 하세요. (로컬 테스트용: `http://localhost:3000/**`)
+- 이 항목이 없으면 카카오 로그인 후 시민권력이 아니라 dialog의 Site URL로 돌아가요.
 
 ## 6. 확인
 1. https://simin-gwonryeok.netlify.app → 우상단 **카카오로 시작** → 카카오 동의 화면(닉네임만) → 사이트로 돌아와 닉네임 표시
@@ -45,5 +40,5 @@ https://supabase.com/dashboard/project/<REF>/auth/url-configuration
 3. **내 참여 → 탈퇴하고 기록 삭제** 동작 확인
 
 ## 참고: 봇이 하는 일 / 공개 키 원칙
-- Netlify 환경변수: `NEXT_PUBLIC_SUPABASE_URL=https://<REF>.supabase.co`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_…` (공개용 키만. service_role/secret 키는 절대 사용·노출하지 않음)
+- Netlify 환경변수: `NEXT_PUBLIC_SUPABASE_URL=https://bskczruswajwmmubsenf.supabase.co`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_…` (공개용 키만. service_role/secret 키는 절대 사용·노출하지 않음)
 - 키가 없으면 사이트는 지금처럼 브라우저 저장(예시) 모드로 동작해요.

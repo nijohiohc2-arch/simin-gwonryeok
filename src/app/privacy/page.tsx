@@ -12,7 +12,7 @@ export default function Privacy() {
         <tr className={row}><td className={`${td} font-bold`}>참여 기록</td><td className={td}>카드 응답, 제안한 문장, 공감·실행팀 참여(역할), 의제 제안, 맡은 작업</td></tr>
         <tr className={row}><td className={`${td} font-bold`}>목적</td><td className={td}>로그인 유지, 내 참여 기록 저장·조회, 의제별 참여 숫자 집계</td></tr>
         <tr className={row}><td className={`${td} font-bold`}>공개 범위</td><td className={td}>개인별 기록은 본인만 볼 수 있어요. 다른 사람에게는 의제별 숫자(공감 수·실행팀 수·응답자 수)만 공개되고, 이름·지역 명단은 공개하지 않아요.</td></tr>
-        <tr className={row}><td className={`${td} font-bold`}>보관·삭제</td><td className={td}>탈퇴할 때까지 보관해요. <Link href="/me" className="underline">내 참여 → 탈퇴하고 기록 삭제</Link>를 누르면 계정과 모든 기록이 즉시 삭제돼요.</td></tr>
+        <tr className={row}><td className={`${td} font-bold`}>보관·삭제</td><td className={td}>탈퇴할 때까지 보관해요. <Link href="/me" className="underline">내 참여 → 탈퇴하고 기록 삭제</Link>를 누르면 시민권력의 모든 참여 기록과 별칭이 즉시 삭제돼요. 로그인 계정(카카오 연결 정보)은 같은 인증 서버를 쓰는 다른 서비스와 공유되어 함께 지워지지 않으며, 카카오 계정 설정의 &lsquo;연결된 서비스 관리&rsquo;에서 연결을 끊거나 운영자에게 계정 삭제를 요청할 수 있어요.</td></tr>
         <tr className={row}><td className={`${td} font-bold`}>처리 위탁·저장 위치</td><td className={td}>Supabase(데이터베이스·인증, 서울 리전 예정), Netlify(웹 호스팅), 카카오(로그인)</td></tr>
         <tr className={row}><td className={`${td} font-bold`}>로그인하지 않으면</td><td className={td}>기록은 이 브라우저(localStorage)에만 남고 서버로 보내지 않아요.</td></tr>
       </tbody></table></div>
