@@ -1,0 +1,37 @@
+from playwright.sync_api import sync_playwright
+B="http://localhost:3420"; O="screenshots/final/"
+with sync_playwright() as p:
+    b=p.chromium.launch(executable_path="/usr/bin/google-chrome")
+    c=b.new_context(viewport={"width":1280,"height":800}); pg=c.new_page()
+    pg.goto(B+"/"); pg.wait_for_timeout(2000); pg.screenshot(path=O+"00_home_hero_desktop.png"); c.close()
+    c=b.new_context(viewport={"width":390,"height":844},device_scale_factor=2,is_mobile=True,has_touch=True); pg=c.new_page()
+    def go(path,n,scroll=0,w=1200):
+        pg.goto(B+path); pg.wait_for_timeout(w)
+        if scroll: pg.evaluate(f"window.scrollTo(0,{scroll})"); pg.wait_for_timeout(500)
+        pg.screenshot(path=O+n)
+    go("/","01_home_hero.png",0,2000)
+    go("/","02_home_rows.png",760,1500)
+    pg.locator("text=해결된 이야기").first.scroll_into_view_if_needed(); pg.wait_for_timeout(400); pg.screenshot(path=O+"03_home_stories.png")
+    go("/issues/","04_issues.png")
+    go("/issues/apt-fee/","05_issue_detail.png",220)
+    go("/propose/","06_propose.png")
+    pg.fill("input >> nth=0","학교 앞 300m 불법 주정차 해소")
+    for el in pg.locator("input[required], textarea[required]").all():
+        if not el.input_value(): el.fill("예시 입력")
+    pg.check("input[type=checkbox]"); pg.click("text=제안 제출하기"); pg.wait_for_timeout(500); pg.screenshot(path=O+"07_propose_done.png")
+    go("/deliberate/night-bus/","08_deliberate.png",300)
+    for _ in range(5): pg.click("text=⭕ 찬성"); pg.wait_for_timeout(420)
+    bx=pg.locator("[data-testid=swipe-card]").bounding_box(); x=bx["x"]+bx["width"]/2; y=bx["y"]+bx["height"]/2
+    pg.mouse.move(x,y); pg.mouse.down(); pg.mouse.move(x+80,y,steps=5); pg.wait_for_timeout(200); pg.screenshot(path=O+"09_deliberate_swipe.png")
+    pg.mouse.move(x,y,steps=3); pg.mouse.up()
+    go("/agreement/apt-fee/","10_agreement.png",0,1400)
+    pg.locator("text=🤝 함께하기").scroll_into_view_if_needed(); pg.evaluate("window.scrollBy(0,-60)"); pg.wait_for_timeout(400); pg.screenshot(path=O+"11_agreement_join.png")
+    pg.click("text=카카오로 시작하고 함께하기"); pg.wait_for_timeout(300); pg.click("text=🙋 실행팀 합류하기"); pg.wait_for_selector("[data-testid=share-card]"); pg.wait_for_timeout(600); pg.screenshot(path=O+"12_share_card.png")
+    go("/room/jeonse/","13_room.png",250)
+    go("/results/night-light/","14_results.png",250)
+    go("/agreement/night-bus/","15_locked_stage.png")
+    go("/about/","16_about.png")
+    go("/principles/","17_principles.png")
+    go("/me/","18_me.png")
+    go("/404/","19_not_found.png")
+    b.close()

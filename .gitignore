@@ -1,0 +1,10 @@
+node_modules/
+.next/
+out/
+.netlify/
+.env*
+*.tsbuildinfo
+*.mp4
+*.webm
+screenshots/*
+!screenshots/final/
