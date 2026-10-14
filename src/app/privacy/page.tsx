@@ -8,7 +8,8 @@ export default function Privacy() {
       <h1 className="text-3xl font-black">개인정보 처리 안내</h1>
       <p className="mt-2 text-sm text-white/75">프로토타입 초안 · 2026.10.12 · 정식 서비스 전 법률 검토 후 개정 예정</p>
       <div className="mt-6 overflow-hidden rounded-2xl border border-line"><table className="w-full text-sm"><thead className="bg-white/5 text-left"><tr><th className="p-3">항목</th><th className="p-3">내용</th></tr></thead><tbody>
-        <tr className={row}><td className={`${td} font-bold`}>수집 항목</td><td className={td}>카카오 로그인 시: 카카오 회원 고유 ID(인증 처리용), 카카오 닉네임(공개 별칭). 실명·전화번호·이메일·주소는 요청하지 않아요.</td></tr>
+        <tr className={row}><td className={`${td} font-bold`}>수집 항목</td><td className={td}>카카오 로그인 시: 카카오 회원 고유 ID(인증 처리용), 카카오 닉네임(공개 별칭, 필수). 실명·전화번호·주소는 요청하지 않아요.</td></tr>
+        <tr className={row}><td className={`${td} font-bold`}>선택 항목</td><td className={td}>카카오 동의 화면에 <b>프로필 사진</b>과 <b>카카오계정(이메일)</b>이 <b>선택</b> 항목으로 표시돼요. 체크를 해제해 거부해도 로그인과 참여에 아무 제한이 없어요. 동의하면 이메일과 프로필 사진 주소가 로그인 기록(Supabase 인증 서버, 같은 서버를 쓰는 dialog-platform과 공유)에 보관될 수 있어요. 시민권력의 참여 기록 테이블에는 닉네임만 저장하며, 이메일·사진은 저장하거나 화면에 표시하지 않아요.</td></tr>
         <tr className={row}><td className={`${td} font-bold`}>참여 기록</td><td className={td}>카드 응답, 제안한 문장, 공감·실행팀 참여(역할), 의제 제안, 맡은 작업</td></tr>
         <tr className={row}><td className={`${td} font-bold`}>목적</td><td className={td}>로그인 유지, 내 참여 기록 저장·조회, 의제별 참여 숫자 집계</td></tr>
         <tr className={row}><td className={`${td} font-bold`}>공개 범위</td><td className={td}>개인별 기록은 본인만 볼 수 있어요. 다른 사람에게는 의제별 숫자(공감 수·실행팀 수·응답자 수)만 공개되고, 이름·지역 명단은 공개하지 않아요.</td></tr>
