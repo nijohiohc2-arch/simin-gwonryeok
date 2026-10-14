@@ -18,7 +18,7 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1, them
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko" suppressHydrationWarning><body className="min-h-screen">
-      <script dangerouslySetInnerHTML={{ __html: `try{if(location.pathname==="/"&&!sessionStorage.getItem("cos.introSeen")&&!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.dataset.intro="1"}catch(e){}` }} />
+      <script dangerouslySetInnerHTML={{ __html: `try{var q=new URLSearchParams(location.search);if(location.pathname==="/"&&!localStorage.getItem("cos.introSeen")&&!q.has("code")&&!q.has("error"))document.documentElement.dataset.intro="1"}catch(e){}` }} />
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-white focus:px-3 focus:py-2 focus:text-black">본문 바로가기</a>
       <ProtoBanner /><Header /><main id="main">{children}</main><Footer /><BottomTabs />
     </body></html>

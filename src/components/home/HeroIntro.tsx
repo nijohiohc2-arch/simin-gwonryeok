@@ -41,12 +41,12 @@ export function HeroIntro() {
   const [state, setState] = useState<"idle" | "play" | "done">("idle");
   const stopRef = useRef<() => void>(() => {});
 
-  const finish = useCallback((instant = false) => {
+  const finish = useCallback((instant = false, mark = true) => {
     stopRef.current();
     const root = document.documentElement;
     if (instant) root.removeAttribute("data-intro");
     else if (root.dataset.intro === "1") root.dataset.intro = "stamp";
-    try { sessionStorage.setItem(INTRO_KEY, "1"); } catch { /* 무시 */ }
+    if (mark) { try { localStorage.setItem(INTRO_KEY, "1"); } catch { /* 무시 */ } }
     setState("done");
   }, []);
 
@@ -66,7 +66,7 @@ export function HeroIntro() {
       const r = cvs.getBoundingClientRect(); W = r.width; H = r.height;
       cvs.width = Math.round(W * dpr); cvs.height = Math.round(H * dpr); g.setTransform(dpr, 0, 0, dpr, 0, 0);
       const cm = coverMap(img.naturalWidth, img.naturalHeight, W, H, desktop ? 0.7 : 0.5, desktop ? 0.4 : 0.18); cover = cm;
-      const pts = sampleMask(img, desktop); const N = desktop ? 6000 : 3000;
+      const pts = sampleMask(img, desktop); const lite = window.matchMedia("(prefers-reduced-motion: reduce)").matches; const N = (desktop ? 6000 : 3000) / (lite ? 2 : 1);
       const tgt = Array.from({ length: N }, () => { const p = pts[(Math.random() * pts.length) | 0] ?? [img.naturalWidth / 2, img.naturalHeight / 3, 1]; const [x, y] = cm.map(p[0], p[1]); return { x, y, l: p[2] }; });
       fx = tgt.reduce((s, p) => s + p.x, 0) / N; fy = tgt.reduce((s, p) => s + p.y, 0) / N;
       fr = Math.sqrt(tgt.reduce((s, p) => s + (p.x - fx) ** 2 + (p.y - fy) ** 2, 0) / N);
@@ -128,15 +128,22 @@ export function HeroIntro() {
     stopRef.current = () => { stopped = true; cancelAnimationFrame(raf); document.removeEventListener("visibilitychange", onVis); if (ref.current) { ref.current.style.transition = "opacity .6s ease"; ref.current.style.opacity = "0"; } };
     document.addEventListener("visibilitychange", onVis);
     const go = () => { setup(); raf = requestAnimationFrame(tick); };
-    if (img.complete && img.naturalWidth) go(); else { img.onload = go; img.onerror = () => finish(true); }
+    if (img.complete && img.naturalWidth) go(); else { img.onload = go; img.onerror = () => finish(true, false); }
   }, [finish]);
 
   useEffect(() => {
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let seen = false; try { seen = sessionStorage.getItem(INTRO_KEY) === "1"; } catch { /* 무시 */ }
-    if (reduce || seen) { document.documentElement.removeAttribute("data-intro"); setState("done"); return; }
-    play();
-    return () => { stopRef.current(); document.documentElement.removeAttribute("data-intro"); };
+    // 첫 방문(이 기기에서 끝까지 보거나 건너뛴 적 없음)이면 항상 재생. 모션 줄이기 설정이면 입자 수만 줄인 가벼운 버전.
+    let seen = false; try { seen = localStorage.getItem(INTRO_KEY) === "1"; } catch { /* 무시 */ }
+    const q = new URLSearchParams(location.search); const oauthReturn = q.has("code") || q.has("error") || location.hash.includes("access_token");
+    if (seen || oauthReturn) { document.documentElement.removeAttribute("data-intro"); setState("done"); return; }
+    // 프리렌더/백그라운드 탭에서는 시작하지 않고, 실제로 보일 때 시작
+    const d = document as Document & { prerendering?: boolean };
+    let started = false;
+    const tryStart = () => { if (started || d.prerendering || document.hidden) return; started = true; cleanup(); play(); };
+    const cleanup = () => { document.removeEventListener("visibilitychange", tryStart); document.removeEventListener("prerenderingchange", tryStart); };
+    document.addEventListener("visibilitychange", tryStart); document.addEventListener("prerenderingchange", tryStart);
+    tryStart();
+    return () => { cleanup(); stopRef.current(); document.documentElement.removeAttribute("data-intro"); };
   }, [play]);
 
   return (<>
