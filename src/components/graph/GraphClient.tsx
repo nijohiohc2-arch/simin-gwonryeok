@@ -32,7 +32,9 @@ function buildGraph(count: number) {
 }
 
 export function GraphClient() {
-  const { user, login, real, loaded } = useMockAuth();
+  const auth = useMockAuth(); const { login, real } = auth;
+  const [mounted, setMounted] = useState(false); useEffect(() => setMounted(true), []); // 하이드레이션 이후에만 로그인 상태 반영
+  const user = mounted ? auth.user : null; const loaded = mounted && auth.loaded;
   const cvs = useRef<HTMLCanvasElement>(null);
   const [view, setView] = useState<View>("overview");
   const viewRef = useRef<View>("overview"); viewRef.current = view;
