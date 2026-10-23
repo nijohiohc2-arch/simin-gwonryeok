@@ -34,3 +34,16 @@ export async function deleteMe() {
   Object.keys(localStorage).filter((k) => k.startsWith("cos.") && k !== "cos.introSeen").forEach((k) => localStorage.removeItem(k));
   window.dispatchEvent(new CustomEvent("cos-storage", { detail: "*" }));
 }
+/** 내 정보(동네·관심 분야·역할) — 로그인 시 서버, 실패/비로그인 시 이 브라우저(localStorage) */
+export type Profile = { nickname: string; neighborhood: string; interests: string[]; role: string };
+export async function getProfile(): Promise<Partial<Profile> | null> {
+  if (!supabase || !(await uid())) return null;
+  const { data, error } = await supabase.rpc("civic_get_profile"); if (error || !data) return null;
+  return { nickname: data.nickname, neighborhood: data.neighborhood ?? "", interests: data.interests ?? [], role: data.role ?? "참여자" };
+}
+export async function updateProfile(p: Profile): Promise<"server" | "local"> {
+  try { localStorage.setItem("cos.profile", JSON.stringify(p)); } catch { /* 무시 */ }
+  if (!supabase || !(await uid())) return "local";
+  const { error } = await supabase.rpc("civic_update_profile", { p_nickname: p.nickname, p_neighborhood: p.neighborhood, p_interests: p.interests, p_role: p.role });
+  if (error) throw error; return "server";
+}
